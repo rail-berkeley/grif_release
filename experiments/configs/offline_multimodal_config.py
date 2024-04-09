@@ -1,6 +1,7 @@
 import ml_collections
 import flax.linen as nn
 
+
 PNP_TASKS = [
     "bridge_data_v1/berkeley/toysink1_room8052/put_pan_from_sink_into_drying_rack/",
     "bridge_data_v1/berkeley/toysink1_room8052/put_pan_from_drying_rack_into_sink/",
@@ -144,9 +145,7 @@ multimodal_config_proto = dict(
     eval_interval=5000,
     save_interval=5000,
     save_dir="gs://rail-tpus-andre/logs",
-    # data_path="gs://rail-tpus-vivek/data_new",
     data_path="gs://rail-tpus-andre/tf_all_labels_no_dirname_224px",
-    # data_path="gs://rail-tpus-andre/new_tf",
     resume_path=None,
     clip_resume_path=None,
     use_image_embeddings=False,
@@ -765,10 +764,8 @@ def get_config(config_string):
             ),
             task_encoder_kwargs=dict(
                 image=dict(
-                    # freeze_encoder=True,
                 ),
                 language=dict(
-                    # freeze_encoder=True,
                     # freeze_projection=True,
                 ),
             ),
@@ -850,11 +847,8 @@ def get_config(config_string):
             ),
             task_encoder_kwargs=dict(
                 image=dict(
-                    # freeze_encoder=True,
                 ),
                 language=dict(
-                    # freeze_encoder=True,
-                    # freeze_projection=True,
                 ),
             ),
             agent_kwargs=dict(
@@ -884,10 +878,6 @@ def get_config(config_string):
                 ),
             ),
         ),
-        # say the clip task embedding is z (a function of (s0, g) or l)
-        # we fuse this again with the initial state and do a sz_img-sz_lang alignment
-        # empirically the policy works best when we align representations with initial state dependence
-        # this is an attempt to combine sg-l clip embeddings and sg-sl alignment
         "sz_clip_refuse": update_config(
             data_path="gs://rail-tpus-andre/tf_new_embeds",
             # TODO this does not take effect cuz not clip encoders
@@ -955,28 +945,6 @@ def get_config(config_string):
                 alignment=1.0,
             ),
         ),
-        # "sg_sl_align_resnet_clip": update_config(
-        #     data_path="gs://rail-tpus-andre/tf_new_embeds",
-        #     task_encoders=dict(
-        #         image="resnetv1-18-bridge",
-        #         language="resnetv1-18-bridge-task",
-        #     ),
-        #     task_encoder_kwargs=dict(
-        #         image=dict(
-        #             pooling_method="avg",
-        #             add_spatial_coordinates=True,
-        #             act="swish",
-        #         ),
-        #         language=dict(
-        #             pooling_method="avg",
-        #             add_spatial_coordinates=True,
-        #             act="swish",
-        #         ),
-        #     ),
-        #     agent_kwargs=dict(
-        #         alignment=1.0,
-        #     ),
-        # ),
         "sg_sl_resnet_muse": update_config(
             task_encoders=dict(
                 image="resnetv1-18-bridge",
@@ -998,7 +966,6 @@ def get_config(config_string):
                 alignment=0.0,
             ),
         ),
-        # this is closest to BCZ probably. above is comparision with our text encoder
         "bc_resnet_muse": update_config(
             task_encoders=dict(
                 image="resnetv1-18-bridge",
@@ -1081,7 +1048,6 @@ def get_config(config_string):
                 alignment=1.0,
             ),
         ),
-        # this is closest to BCZ probably. above is comparision with our text encoder
         "sg_sl_align_muse_frozen_ss2": update_config(
             ss2_batch_size=128,
             clip_resume_path="gs://rail-tpus-andre/logs/jaxrl_m_bridgedata/clip_ss2_bridge_lang_aug_20230515_222548/checkpoint_1200",
@@ -1120,8 +1086,6 @@ def get_config(config_string):
             drop_encoders=True,
             use_image_embeddings=True,
             use_text_embeddings=True,
-            # doesn't matter what params we use here
-            # clip_resume_path="gs://rail-tpus-andre/logs/jaxrl_m_bridgedata/clip_ss2_bridge_lang_aug_20230515_222548/checkpoint_1200",
             task_encoders=dict(
                 image="clip_vision_with_projection",
                 language="clip_text_with_projection",
@@ -1199,18 +1163,18 @@ def get_config(config_string):
         ),
     )
 
-    possible_structures[
-        "bc_clip_frozen_embeddings_512_resnet50_no_prefuse_mlp"
-    ] = update_config(
-        possible_structures["bc_clip_frozen_embeddings"],
-        encoder="resnetv1-50-bridge",
-        encoder_kwargs=dict(
-            pooling_method="avg",
-            add_spatial_coordinates=True,
-            act="swish",
-            task_units=512,
-            pre_fuse_mlp=False,
-        ),
+    possible_structures["bc_clip_frozen_embeddings_512_resnet50_no_prefuse_mlp"] = (
+        update_config(
+            possible_structures["bc_clip_frozen_embeddings"],
+            encoder="resnetv1-50-bridge",
+            encoder_kwargs=dict(
+                pooling_method="avg",
+                add_spatial_coordinates=True,
+                act="swish",
+                task_units=512,
+                pre_fuse_mlp=False,
+            ),
+        )
     )
 
     possible_structures["bc_clip_frozen_embeddings_256_resnet50"] = update_config(
@@ -1307,7 +1271,6 @@ def get_config(config_string):
         ),
     )
 
-    # don't do the mlp before FiLM in sl encoder
     possible_structures["sg_sl_align_resnet_raw_muse"] = update_config(
         possible_structures["sg_sl_align_resnet_muse"],
         task_encoder_kwargs=dict(
@@ -1468,7 +1431,6 @@ def get_config(config_string):
     )
 
     possible_structures["bc_clip_thawed_ss0_ef"] = update_config(
-        # data_path="gs://rail-tpus-andre/tf_new_embeds",
         clip_resume_path="gs://rail-tpus-andre/logs/jaxrl_m_bridgedata/clip_ss2_bridge_20230520_031216/checkpoint_4300",
         encoder="resnetv1-34-bridge",
         encoder_kwargs=dict(
@@ -1533,7 +1495,6 @@ def get_config(config_string):
             clip_encoder_lr_multiplier=0.0,
         ),
     )
-    # sanity check; make sure val_align metrics are the same as using frozen embeddings
     possible_structures["bc_clip_frozen_ss0_ef"] = update_config(
         possible_structures["bc_clip_thawed_ss0_ef"],
         task_encoder_kwargs=dict(
@@ -1618,6 +1579,9 @@ def get_config(config_string):
             early_fuse_initial_obs=False,
         ),
     )
+    possible_structures["GRIF"] = update_config(
+        possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang"],
+    )
 
     possible_structures["lcbc_clip_lang"] = update_config(
         possible_structures["lcbc_noinitial"],
@@ -1665,51 +1629,51 @@ def get_config(config_string):
         ),
     )
 
-    possible_structures[
-        "bc_clip_1.0_align_0.1x_lr_frozen_lang_image_from_lang"
-    ] = update_config(
-        possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang"],
-        agent_kwargs=dict(
-            alignment=1.0,
-            other_alignment=0.0,
-        ),
+    possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang_image_from_lang"] = (
+        update_config(
+            possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang"],
+            agent_kwargs=dict(
+                alignment=1.0,
+                other_alignment=0.0,
+            ),
+        )
     )
-    possible_structures[
-        "bc_clip_1.0_align_0.1x_lr_frozen_lang_image_from_lang"
-    ] = update_config(
-        possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang"],
-        agent_kwargs=dict(
-            alignment=1.0,
-            other_alignment=0.0,
-        ),
-    )
-
-    possible_structures[
-        "bc_clip_1.0_align_0.1x_lr_frozen_lang_lang_from_image"
-    ] = update_config(
-        possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang"],
-        agent_kwargs=dict(
-            alignment=0.0,
-            other_alignment=1.0,
-        ),
+    possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang_image_from_lang"] = (
+        update_config(
+            possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang"],
+            agent_kwargs=dict(
+                alignment=1.0,
+                other_alignment=0.0,
+            ),
+        )
     )
 
-    possible_structures[
-        "bc_clip_1.0_align_0.1x_lr_frozen_lang_freeze_B"
-    ] = update_config(
-        possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang"],
-        agent_kwargs=dict(
-            freeze_task_B=True,
-        ),
+    possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang_lang_from_image"] = (
+        update_config(
+            possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang"],
+            agent_kwargs=dict(
+                alignment=0.0,
+                other_alignment=1.0,
+            ),
+        )
     )
 
-    possible_structures[
-        "bc_clip_1.0_align_0.1x_lr_thawed_lang_freeze_B"
-    ] = update_config(
-        possible_structures["bc_clip_1.0_align_0.1x_lr_thawed_lang"],
-        agent_kwargs=dict(
-            freeze_task_B=True,
-        ),
+    possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang_freeze_B"] = (
+        update_config(
+            possible_structures["bc_clip_1.0_align_0.1x_lr_frozen_lang"],
+            agent_kwargs=dict(
+                freeze_task_B=True,
+            ),
+        )
+    )
+
+    possible_structures["bc_clip_1.0_align_0.1x_lr_thawed_lang_freeze_B"] = (
+        update_config(
+            possible_structures["bc_clip_1.0_align_0.1x_lr_thawed_lang"],
+            agent_kwargs=dict(
+                freeze_task_B=True,
+            ),
+        )
     )
 
     possible_structures["bc_clip_1.0_align_0.1x_lr_tune_proj"] = update_config(
@@ -1845,7 +1809,6 @@ def get_config(config_string):
         # clip_resume_path="gs://rail-tpus-andre/logs/jaxrl_m_bridgedata/bridge_resnet_clip_lang_fs_20230528_230619/checkpoint_1500",
     )
 
-    # bridge_resnet_clip_lang_fs_20230528_230619
 
     # TODO g-l ablation
     # would need to train a new contrastive checkpoint

@@ -1,0 +1,49 @@
+name: grif
+channels:
+  - conda-forge
+  - defaults
+  - nvidia
+dependencies:
+  - python=3.9
+  - pip=21.0
+  - setuptools==65.5.0
+  - numpy<=1.23
+  - scipy>=1.6.0
+  - matplotlib=3.8.2
+  - tqdm>=4.60.0
+  - absl-py>=0.12.0
+  - wandb>=0.12.14
+  - moviepy>=1.0.3
+  - google-auth==2.7.0
+  - lockfile=0.12
+  - imageio=2.19
+  - ml-collections=0.1
+  - distrax<2
+  - imageio[ffmpeg]
+  - mesalib
+  - glew
+  - cudatoolkit
+  - cudnn
+  - cuda-nvcc
+  - patchelf
+  - jax=0.4.14
+  - optax==0.1.7
+  - pip:
+    - jaxlib==0.4.14+cuda11.cudnn86
+    - flax==0.6.11
+    - chex==0.1.7
+    - tensorflow-cpu==2.11
+    - tensorflow-hub==0.12
+    - tensorflow-text==2.11
+    - tensorflow-probability==0.19
+    - tensorflow-datasets==4.9
+    - tensorflow-estimator==2.11
+    - tensorboard==2.11
+    - transformers==4.25
+    - gym==0.23
+    - -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html 
+    - -e .
+variables:
+  TF_FORCE_GPU_ALLOW_GROWTH: "true"
+  XLA_PYTHON_CLIENT_PREALLOCATE: "false"
+

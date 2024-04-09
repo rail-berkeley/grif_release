@@ -6,19 +6,21 @@ Based on [dibyaghosh/jaxrl_minimal](https://github.com/dibyaghosh/jaxrl_minimal)
 
 
 ## Environment
-```
-conda create -n jaxrl python=3.10
-conda activate jaxrl
-pip install -e . 
-pip install -r requirements.txt
-```
 For GPU:
 ```
-pip install --upgrade "jax[cuda]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+conda env create -f environment_cuda.yml
 ```
 
-For TPU
+For TPU:
 ```
-pip install --upgrade "jax[tpu]" -f https://storage.googleapis.com/jax-releases/libtpu_releases.html
+conda env create -f environment_tpu.yml
 ```
+
 See the [Jax Github page](https://github.com/google/jax) for more details on installing Jax. 
+
+## Running
+
+To train GRIF, run
+```
+bash experiments/scripts/launch_bridge.sh GRIF
+```
